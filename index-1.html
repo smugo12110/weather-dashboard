@@ -1,0 +1,1367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EA Escrow Platform - Operations Documentation</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        header {
+            background: white;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            margin-bottom: 40px;
+            text-align: center;
+        }
+
+        header h1 {
+            color: #667eea;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        header p {
+            color: #666;
+            font-size: 1.1em;
+        }
+
+        .nav-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .nav-tabs button {
+            padding: 12px 24px;
+            border: 2px solid #667eea;
+            background: white;
+            color: #667eea;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .nav-tabs button:hover {
+            background: #f0f4ff;
+            transform: translateY(-2px);
+        }
+
+        .nav-tabs button.active {
+            background: #667eea;
+            color: white;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border-left: 4px solid #667eea;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+        }
+
+        .card h3 {
+            color: #667eea;
+            margin-bottom: 12px;
+            font-size: 1.3em;
+        }
+
+        .card p {
+            color: #666;
+            margin-bottom: 15px;
+            line-height: 1.6;
+        }
+
+        .card .meta {
+            font-size: 0.9em;
+            color: #999;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 600;
+        }
+
+        .badge.critical {
+            background: #ffe0e0;
+            color: #d32f2f;
+        }
+
+        .badge.important {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .badge.guide {
+            background: #e7f3ff;
+            color: #0066cc;
+        }
+
+        .badge.quick {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        .section {
+            background: white;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            margin-bottom: 40px;
+            display: none;
+        }
+
+        .section.active {
+            display: block;
+        }
+
+        .section h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 2em;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 15px;
+        }
+
+        .section h3 {
+            color: #764ba2;
+            margin-top: 30px;
+            margin-bottom: 15px;
+            font-size: 1.4em;
+        }
+
+        .section code {
+            background: #f5f5f5;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            color: #e83e8c;
+        }
+
+        .section pre {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 20px;
+            border-radius: 6px;
+            overflow-x: auto;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+            line-height: 1.5;
+        }
+
+        .section pre code {
+            background: none;
+            color: inherit;
+            padding: 0;
+        }
+
+        .checklist {
+            background: #f9f9f9;
+            padding: 20px;
+            border-radius: 6px;
+            border-left: 4px solid #667eea;
+            margin: 15px 0;
+        }
+
+        .checklist ul {
+            list-style: none;
+            padding-left: 20px;
+        }
+
+        .checklist li {
+            padding: 8px 0;
+            margin-bottom: 5px;
+        }
+
+        .checklist li:before {
+            content: "☐ ";
+            color: #667eea;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+
+        table th {
+            background: #667eea;
+            color: white;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        table td {
+            padding: 12px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        table tr:nth-child(even) {
+            background: #f9f9f9;
+        }
+
+        .alert {
+            padding: 20px;
+            border-radius: 6px;
+            margin: 20px 0;
+            border-left: 4px solid;
+        }
+
+        .alert.info {
+            background: #e7f3ff;
+            border-left-color: #0066cc;
+            color: #003d99;
+        }
+
+        .alert.warning {
+            background: #fff3cd;
+            border-left-color: #856404;
+            color: #664d03;
+        }
+
+        .alert.danger {
+            background: #ffe0e0;
+            border-left-color: #d32f2f;
+            color: #99000d;
+        }
+
+        .alert.success {
+            background: #e8f5e9;
+            border-left-color: #2e7d32;
+            color: #1b5e20;
+        }
+
+        .step {
+            background: #f9f9f9;
+            padding: 20px;
+            border-radius: 6px;
+            margin: 15px 0;
+            border-left: 4px solid #667eea;
+        }
+
+        .step strong {
+            color: #667eea;
+        }
+
+        footer {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            text-align: center;
+            color: #666;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .breadcrumb {
+            background: white;
+            padding: 15px 20px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            font-size: 0.9em;
+        }
+
+        .breadcrumb a {
+            color: #667eea;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .breadcrumb a:hover {
+            text-decoration: underline;
+        }
+
+        .back-button {
+            display: inline-block;
+            padding: 10px 20px;
+            background: #667eea;
+            color: white;
+            border-radius: 6px;
+            text-decoration: none;
+            cursor: pointer;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .back-button:hover {
+            background: #764ba2;
+            transform: translateX(-5px);
+        }
+
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 1.8em;
+            }
+
+            .grid {
+                grid-template-columns: 1fr;
+            }
+
+            .nav-tabs {
+                flex-direction: column;
+            }
+
+            .nav-tabs button {
+                width: 100%;
+            }
+
+            .section {
+                padding: 20px;
+            }
+
+            section h2 {
+                font-size: 1.5em;
+            }
+        }
+
+        .copy-button {
+            position: absolute;
+            right: 10px;
+            top: 10px;
+            padding: 5px 10px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.85em;
+            display: none;
+        }
+
+        pre:hover .copy-button {
+            display: block;
+        }
+
+        .quick-links {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .quick-links a {
+            display: block;
+            padding: 15px;
+            background: #f0f4ff;
+            border-radius: 6px;
+            color: #667eea;
+            text-decoration: none;
+            text-align: center;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border: 2px solid #667eea;
+        }
+
+        .quick-links a:hover {
+            background: #667eea;
+            color: white;
+            transform: translateY(-3px);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header>
+            <h1>🚀 EA Escrow Platform</h1>
+            <p>Production Operations & Deployment Documentation</p>
+            <p style="margin-top: 20px; font-size: 0.9em;">Complete guide for deployment, monitoring, and operations</p>
+        </header>
+
+        <!-- Navigation -->
+        <div class="nav-tabs">
+            <button class="tab-btn active" onclick="switchSection('overview')">📊 Overview</button>
+            <button class="tab-btn" onclick="switchSection('quick-start')">⚡ Quick Start</button>
+            <button class="tab-btn" onclick="switchSection('operations')">📋 Operations</button>
+            <button class="tab-btn" onclick="switchSection('api')">🔌 API Docs</button>
+            <button class="tab-btn" onclick="switchSection('monitoring')">🚨 Monitoring</button>
+            <button class="tab-btn" onclick="switchSection('alerts')">🔔 Alerts</button>
+            <button class="tab-btn" onclick="switchSection('deployment')">🚀 Deployment</button>
+        </div>
+
+        <!-- Overview Section -->
+        <section id="overview" class="section active">
+            <h2>📊 Documentation Overview</h2>
+            
+            <div class="alert info">
+                <strong>✅ Production Ready:</strong> This platform is fully tested and ready for deployment.
+            </div>
+
+            <div class="grid">
+                <div class="card">
+                    <h3>🚀 Quick Start (30 min)</h3>
+                    <p>Get the platform deployed to AWS in 30 minutes with our automated deployment script.</p>
+                    <div class="meta">
+                        <span class="badge quick">Quick Guide</span>
+                        <span>~30 minutes</span>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>📋 Daily Operations</h3>
+                    <p>Morning and evening checklists, weekly tasks, and monthly maintenance procedures.</p>
+                    <div class="meta">
+                        <span class="badge guide">Reference</span>
+                        <span>Print & Use Daily</span>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>🚨 Alert Response</h3>
+                    <p>Step-by-step runbooks for responding to each type of CloudWatch alert.</p>
+                    <div class="meta">
+                        <span class="badge critical">Critical</span>
+                        <span>Keep Handy</span>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>📊 Monitoring Setup</h3>
+                    <p>Complete guide to setting up CloudWatch, alarms, dashboards, and health checks.</p>
+                    <div class="meta">
+                        <span class="badge important">Important</span>
+                        <span>~3 hours</span>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>🔌 API Documentation</h3>
+                    <p>Complete OpenAPI 3.0 specification with examples for all 15+ endpoints.</p>
+                    <div class="meta">
+                        <span class="badge guide">Reference</span>
+                        <span>Technical</span>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>💼 Business Plan</h3>
+                    <p>Investor roadmap, financial projections, and strategic overview.</p>
+                    <div class="meta">
+                        <span class="badge guide">Business</span>
+                        <span>For Leadership</span>
+                    </div>
+                </div>
+            </div>
+
+            <h3 style="margin-top: 40px;">📚 All Available Documents</h3>
+            <div class="grid">
+                <a href="#" onclick="loadDoc('QUICK_START_AWS.md')" class="card" style="text-decoration: none; color: inherit;">
+                    <h3>⚡ Quick Start AWS</h3>
+                    <p>30-minute deployment guide</p>
+                </a>
+
+                <a href="#" onclick="loadDoc('DAILY_OPS_CHECKLIST.md')" class="card" style="text-decoration: none; color: inherit;">
+                    <h3>📋 Daily Operations</h3>
+                    <p>Morning/evening checklists</p>
+                </a>
+
+                <a href="#" onclick="loadDoc('ALERT_RESPONSE_RUNBOOK.md')" class="card" style="text-decoration: none; color: inherit;">
+                    <h3>🚨 Alert Response</h3>
+                    <p>Alert handling procedures</p>
+                </a>
+
+                <a href="#" onclick="loadDoc('MONITORING_AND_ALERTS_SETUP.md')" class="card" style="text-decoration: none; color: inherit;">
+                    <h3>📊 Monitoring Setup</h3>
+                    <p>CloudWatch configuration</p>
+                </a>
+
+                <a href="#" onclick="loadDoc('API_DOCUMENTATION.md')" class="card" style="text-decoration: none; color: inherit;">
+                    <h3>🔌 API Docs</h3>
+                    <p>Complete API reference</p>
+                </a>
+
+                <a href="#" onclick="loadDoc('PRODUCTION_OPERATIONS.md')" class="card" style="text-decoration: none; color: inherit;">
+                    <h3>⚙️ Production Ops</h3>
+                    <p>Operations manual</p>
+                </a>
+            </div>
+        </section>
+
+        <!-- Quick Start Section -->
+        <section id="quick-start" class="section">
+            <a onclick="switchSection('overview')" class="back-button">← Back to Overview</a>
+            
+            <h2>⚡ Quick Start: Deploy in 30 Minutes</h2>
+
+            <div class="alert success">
+                <strong>✅ Ready to Go:</strong> Your platform is production-ready. Follow these 6 steps to deploy to AWS.
+            </div>
+
+            <h3>Prerequisites</h3>
+            <ul>
+                <li>AWS Account with EC2 and RDS access</li>
+                <li>SSH key pair created</li>
+                <li>Domain name (e.g., api.eascrow.io)</li>
+                <li>Environment variables documented</li>
+            </ul>
+
+            <div class="step">
+                <strong>Step 1: Launch EC2 Instance (5 min)</strong>
+                <p>Log into AWS Console → EC2 → Launch Instance</p>
+                <pre><code>AMI: Ubuntu 22.04 LTS
+Instance Type: t3.small
+Storage: 30GB
+Security Group: Allow 22, 80, 443</code></pre>
+            </div>
+
+            <div class="step">
+                <strong>Step 2: Create RDS Database (5 min)</strong>
+                <p>Launch → RDS PostgreSQL 15</p>
+                <pre><code>Instance: db.t3.micro
+Storage: 20GB
+DB Name: escrow_prod
+Public Accessible: No
+Backup: 7 days retention</code></pre>
+            </div>
+
+            <div class="step">
+                <strong>Step 3: SSH into EC2 Instance (2 min)</strong>
+                <pre><code>ssh -i your-key.pem ubuntu@your-instance-ip</code></pre>
+            </div>
+
+            <div class="step">
+                <strong>Step 4: Clone and Run Deployment (10 min)</strong>
+                <pre><code>git clone https://github.com/yourusername/escrow-mvp.git
+cd escrow-mvp
+bash deploy.sh</code></pre>
+                <p>The script will:</p>
+                <ul>
+                    <li>Install Node.js, PostgreSQL, Nginx</li>
+                    <li>Install dependencies</li>
+                    <li>Set up SSL certificate</li>
+                    <li>Configure application</li>
+                    <li>Start services</li>
+                </ul>
+            </div>
+
+            <div class="step">
+                <strong>Step 5: Configure DNS (2 min)</strong>
+                <p>Point your domain to EC2 instance IP</p>
+                <pre><code>A Record: api.eascrow.io → your-instance-ip</code></pre>
+            </div>
+
+            <div class="step">
+                <strong>Step 6: Verify Deployment (2 min)</strong>
+                <pre><code>curl https://api.eascrow.io/api/health
+# Expected: {"status":"ok"}</code></pre>
+            </div>
+
+            <h3>✅ You're Live!</h3>
+            <div class="alert success">
+                Your platform is now running at https://api.eascrow.io
+            </div>
+
+            <h3>Next Steps</h3>
+            <div class="quick-links">
+                <a onclick="switchSection('monitoring')">Set Up Monitoring</a>
+                <a onclick="switchSection('operations')">Daily Operations</a>
+                <a onclick="switchSection('api')">API Documentation</a>
+            </div>
+        </section>
+
+        <!-- Operations Section -->
+        <section id="operations" class="section">
+            <a onclick="switchSection('overview')" class="back-button">← Back to Overview</a>
+            
+            <h2>📋 Daily Operations</h2>
+
+            <div class="alert info">
+                <strong>👀 Print This Page:</strong> You'll use this checklist every day. Keep it at your desk.
+            </div>
+
+            <h3>🌅 Morning Checklist (5 minutes)</h3>
+            <p>Run every morning before market opens at 8:00 AM:</p>
+
+            <div class="checklist">
+                <ul>
+                    <li>API health check returns "ok"</li>
+                    <li>Application status is "online"</li>
+                    <li>Database connection successful</li>
+                    <li>Disk usage &lt; 70%</li>
+                    <li>Memory usage &lt; 70%</li>
+                    <li>No ALARM state in CloudWatch</li>
+                </ul>
+            </div>
+
+            <pre><code>#!/bin/bash
+# Run this every morning
+
+# API Health
+curl -s https://api.eascrow.io/api/health | jq .
+
+# App Status
+pm2 status
+
+# Database
+psql $DATABASE_URL -c "SELECT 1"
+
+# Resources
+echo "Disk: $(df / | tail -1 | awk '{print $5}')"
+echo "Memory: $(free | grep Mem | awk '{printf("%.0f%%", $3/$2*100)}')"</code></pre>
+
+            <h3>📊 Evening Reconciliation (5 minutes)</h3>
+            <p>Run every evening at 5:00 PM after market closes:</p>
+
+            <pre><code>#!/bin/bash
+# Daily reconciliation
+
+# Count transactions
+psql $DATABASE_URL -c "
+SELECT 
+  COUNT(*) as transactions,
+  SUM(source_amount_cents) as volume,
+  SUM(platform_fee_cents) as revenue
+FROM escrows
+WHERE DATE(created_at) = CURRENT_DATE"</code></pre>
+
+            <h3>📈 Weekly Tasks (Monday Morning)</h3>
+            <div class="step">
+                <strong>Review Metrics</strong>
+                <p>Check CloudWatch for CPU, memory, disk trends</p>
+            </div>
+
+            <div class="step">
+                <strong>Security Audit</strong>
+                <p>Review firewall rules and access logs</p>
+            </div>
+
+            <div class="step">
+                <strong>Certificate Check</strong>
+                <pre><code>sudo certbot certificates</code></pre>
+            </div>
+
+            <h3>🔧 Monthly Tasks (1st of Month)</h3>
+            <div class="step">
+                <strong>Database Maintenance</strong>
+                <pre><code>psql $DATABASE_URL -c "VACUUM ANALYZE"
+psql $DATABASE_URL -c "REINDEX DATABASE escrow_prod"</code></pre>
+            </div>
+
+            <div class="step">
+                <strong>System Update</strong>
+                <pre><code>sudo apt update && sudo apt upgrade -y
+npm audit fix
+npm update</code></pre>
+            </div>
+
+            <div class="step">
+                <strong>Financial Report</strong>
+                <p>Generate monthly reconciliation report</p>
+            </div>
+
+            <h3>🚨 If Something Breaks</h3>
+            <table>
+                <tr>
+                    <th>Problem</th>
+                    <th>First Action</th>
+                </tr>
+                <tr>
+                    <td>API not responding</td>
+                    <td><code>pm2 restart escrow-api</code></td>
+                </tr>
+                <tr>
+                    <td>Database down</td>
+                    <td><code>aws rds reboot-db-instance --db-instance-identifier escrow-prod-db</code></td>
+                </tr>
+                <tr>
+                    <td>High CPU (&gt;80%)</td>
+                    <td><code>pm2 monit</code> — identify process</td>
+                </tr>
+                <tr>
+                    <td>Disk full (&gt;85%)</td>
+                    <td><code>rm -f ~/.pm2/logs/*-*.log.*</code> — clean old logs</td>
+                </tr>
+            </table>
+        </section>
+
+        <!-- Monitoring Section -->
+        <section id="monitoring" class="section">
+            <a onclick="switchSection('overview')" class="back-button">← Back to Overview</a>
+            
+            <h2>📊 Monitoring & Alerting Setup</h2>
+
+            <div class="alert warning">
+                <strong>⚠️ Critical:</strong> This setup takes ~3 hours but is essential for production operations.
+            </div>
+
+            <h3>What We're Monitoring</h3>
+            <table>
+                <tr>
+                    <th>Category</th>
+                    <th>Metrics</th>
+                    <th>Target</th>
+                </tr>
+                <tr>
+                    <td>System Health</td>
+                    <td>CPU, Memory, Disk, Database</td>
+                    <td>&lt;80% usage</td>
+                </tr>
+                <tr>
+                    <td>API Performance</td>
+                    <td>Response time, Error rate, Uptime</td>
+                    <td>&lt;100ms, &lt;0.1%, 99.9%</td>
+                </tr>
+                <tr>
+                    <td>Business</td>
+                    <td>Daily transactions, Revenue, Disputes</td>
+                    <td>Track growth</td>
+                </tr>
+                <tr>
+                    <td>Security</td>
+                    <td>Failed auth, Unauthorized access</td>
+                    <td>Monitor anomalies</td>
+                </tr>
+            </table>
+
+            <h3>Phase 1: AWS CloudWatch (15 min)</h3>
+
+            <div class="step">
+                <strong>Enable CloudWatch Logs</strong>
+                <pre><code># SSH into your EC2 instance
+ssh -i your-key.pem ubuntu@your-instance-ip
+
+# Install CloudWatch agent
+wget https://s3.amazonaws.com/amazoncloudwatch-agent/ubuntu/amd64/latest/amazon-cloudwatch-agent.deb
+sudo dpkg -i -E ./amazon-cloudwatch-agent.deb</code></pre>
+            </div>
+
+            <h3>Phase 2: Create Alarms (30 min)</h3>
+
+            <div class="step">
+                <strong>CloudWatch Alarms Setup</strong>
+                <pre><code># Create CPU alarm
+aws cloudwatch put-metric-alarm \
+  --alarm-name "EscrowAPI-HighCPU" \
+  --alarm-description "CPU usage exceeds 80%" \
+  --metric-name CPU_IDLE \
+  --namespace EscrowAPI \
+  --statistic Average \
+  --period 300 \
+  --evaluation-periods 2 \
+  --threshold 20 \
+  --comparison-operator LessThanThreshold \
+  --alarm-actions arn:aws:sns:us-east-1:YOUR_ACCOUNT_ID:escrow-alerts</code></pre>
+            </div>
+
+            <h3>Phase 3: SNS Notifications (20 min)</h3>
+
+            <div class="step">
+                <strong>Create SNS Topic</strong>
+                <pre><code>aws sns create-topic --name escrow-alerts
+
+# Subscribe email
+aws sns subscribe \
+  --topic-arn arn:aws:sns:us-east-1:YOUR_ACCOUNT_ID:escrow-alerts \
+  --protocol email \
+  --notification-endpoint ops@eascrow.io</code></pre>
+            </div>
+
+            <h3>Phase 4: Dashboards (30 min)</h3>
+
+            <p>Create CloudWatch Dashboard showing:</p>
+            <ul>
+                <li>System resources (CPU, Memory, Disk)</li>
+                <li>API metrics (Response time, Error rate)</li>
+                <li>Database health (Connections, Latency)</li>
+                <li>Business metrics (Daily transactions, Revenue)</li>
+            </ul>
+
+            <h3>Access Your Dashboard</h3>
+            <pre><code>https://console.aws.amazon.com/cloudwatch/home?region=us-east-1#dashboards:</code></pre>
+
+            <h3>Success Metrics to Track</h3>
+            <table>
+                <tr>
+                    <th>Metric</th>
+                    <th>Target</th>
+                    <th>Alert Threshold</th>
+                </tr>
+                <tr>
+                    <td>API Uptime</td>
+                    <td>99.9%</td>
+                    <td>Health check fails</td>
+                </tr>
+                <tr>
+                    <td>Response Time (p95)</td>
+                    <td>&lt;100ms</td>
+                    <td>&gt;200ms</td>
+                </tr>
+                <tr>
+                    <td>Error Rate</td>
+                    <td>&lt;0.1%</td>
+                    <td>&gt;0.5%</td>
+                </tr>
+                <tr>
+                    <td>Database Latency</td>
+                    <td>&lt;50ms</td>
+                    <td>&gt;100ms</td>
+                </tr>
+            </table>
+        </section>
+
+        <!-- Alerts Section -->
+        <section id="alerts" class="section">
+            <a onclick="switchSection('overview')" class="back-button">← Back to Overview</a>
+            
+            <h2>🔔 Alert Response Procedures</h2>
+
+            <div class="alert danger">
+                <strong>🚨 Critical Alerts:</strong> Require response within 5 minutes
+            </div>
+
+            <h3>🔴 CRITICAL: Health Check Failing</h3>
+
+            <div class="step">
+                <strong>Immediate Action (within 2 minutes)</strong>
+                <pre><code># Test directly
+curl -v https://api.eascrow.io/api/health
+
+# Check app status
+pm2 status
+
+# If not online, restart
+pm2 restart escrow-api
+
+# Wait 30 seconds, then verify
+curl -s https://api.eascrow.io/api/health | jq .</code></pre>
+            </div>
+
+            <div class="alert warning">
+                <strong>⏱️ If not resolved in 5 minutes:</strong> Page L2 engineer
+            </div>
+
+            <h3>🔴 CRITICAL: Database Down</h3>
+
+            <div class="step">
+                <strong>Immediate Action</strong>
+                <pre><code># Check RDS status
+aws rds describe-db-instances \
+  --db-instance-identifier escrow-prod-db \
+  --query 'DBInstances[0].DBInstanceStatus'
+
+# If "rebooting", wait 5 minutes
+# If "failed", trigger reboot
+aws rds reboot-db-instance \
+  --db-instance-identifier escrow-prod-db
+
+# Wait for available status
+aws rds wait db-instance-available \
+  --db-instance-identifier escrow-prod-db
+
+# Restart application
+pm2 restart escrow-api</code></pre>
+            </div>
+
+            <h3>🟠 HIGH: High CPU/Memory</h3>
+
+            <div class="step">
+                <strong>Action</strong>
+                <pre><code># Check process
+top -bn1 | head -20
+
+# Monitor with PM2
+pm2 monit
+
+# Restart if needed
+pm2 restart escrow-api
+
+# Monitor for 10 minutes
+watch -n 5 'top -bn1 | grep Cpu'</code></pre>
+            </div>
+
+            <h3>🟡 MEDIUM: High Disk Usage</h3>
+
+            <div class="step">
+                <strong>Action</strong>
+                <pre><code># Check disk
+df -h
+
+# Clean old logs
+rm -f ~/.pm2/logs/*-error.log.*
+rm -f ~/.pm2/logs/*-out.log.*
+
+# Verify
+df -h</code></pre>
+            </div>
+
+            <h3>Alert Response Matrix</h3>
+            <table>
+                <tr>
+                    <th>Alert</th>
+                    <th>Severity</th>
+                    <th>Response Time</th>
+                    <th>First Action</th>
+                </tr>
+                <tr>
+                    <td>Health Check Failing</td>
+                    <td>🔴 CRITICAL</td>
+                    <td>5 min</td>
+                    <td>Restart app</td>
+                </tr>
+                <tr>
+                    <td>Database Down</td>
+                    <td>🔴 CRITICAL</td>
+                    <td>5 min</td>
+                    <td>Reboot RDS</td>
+                </tr>
+                <tr>
+                    <td>High CPU</td>
+                    <td>🟠 HIGH</td>
+                    <td>15 min</td>
+                    <td>Identify process</td>
+                </tr>
+                <tr>
+                    <td>High Memory</td>
+                    <td>🟠 HIGH</td>
+                    <td>15 min</td>
+                    <td>Check for leak</td>
+                </tr>
+                <tr>
+                    <td>High Disk</td>
+                    <td>🟠 HIGH</td>
+                    <td>30 min</td>
+                    <td>Clean logs</td>
+                </tr>
+            </table>
+
+            <h3>🆘 Escalation Contacts</h3>
+            <table>
+                <tr>
+                    <th>Level</th>
+                    <th>When to Contact</th>
+                    <th>Contact</th>
+                    <th>Response Time</th>
+                </tr>
+                <tr>
+                    <td>L1</td>
+                    <td>Follow runbook</td>
+                    <td>On-call number</td>
+                    <td>5 min</td>
+                </tr>
+                <tr>
+                    <td>L2</td>
+                    <td>If > 5 min unresolved</td>
+                    <td>engineers-oncall@eascrow.io</td>
+                    <td>15 min</td>
+                </tr>
+                <tr>
+                    <td>L3</td>
+                    <td>If > 1 hour unresolved</td>
+                    <td>manager@eascrow.io</td>
+                    <td>30 min</td>
+                </tr>
+            </table>
+        </section>
+
+        <!-- API Section -->
+        <section id="api" class="section">
+            <a onclick="switchSection('overview')" class="back-button">← Back to Overview</a>
+            
+            <h2>🔌 API Documentation</h2>
+
+            <div class="alert info">
+                <strong>📖 Full OpenAPI 3.0 Specification</strong> available in API_DOCUMENTATION.md
+            </div>
+
+            <h3>API Base URLs</h3>
+            <table>
+                <tr>
+                    <th>Environment</th>
+                    <th>URL</th>
+                </tr>
+                <tr>
+                    <td>Production</td>
+                    <td><code>https://api.eascrow.io</code></td>
+                </tr>
+                <tr>
+                    <td>Development</td>
+                    <td><code>http://localhost:5000</code></td>
+                </tr>
+            </table>
+
+            <h3>Core Endpoints</h3>
+
+            <div class="step">
+                <strong>Health Check</strong>
+                <pre><code>GET /api/health
+
+# Response
+{"status": "ok"}</code></pre>
+            </div>
+
+            <div class="step">
+                <strong>Create Escrow</strong>
+                <pre><code>POST /api/escrow/create
+
+{
+  "buyerPhone": "+254700000000",
+  "sellerPhone": "+256700000000",
+  "amount": 250000,
+  "sourceCurrency": "KES",
+  "payoutCurrency": "UGX"
+}</code></pre>
+            </div>
+
+            <div class="step">
+                <strong>Get Escrow Status</strong>
+                <pre><code>GET /api/escrow/TX-ESCROW-ABC123
+
+# Response
+{
+  "txRef": "TX-ESCROW-ABC123",
+  "status": "pending_funding",
+  "amount": 250000,
+  "riskLevel": "low"
+}</code></pre>
+            </div>
+
+            <h3>Authentication</h3>
+            <p>Two methods supported:</p>
+
+            <div class="step">
+                <strong>1. JWT Token</strong>
+                <pre><code>curl -H "Authorization: Bearer eyJhbGc..." \
+  https://api.eascrow.io/api/dashboard</code></pre>
+            </div>
+
+            <div class="step">
+                <strong>2. API Key</strong>
+                <pre><code>curl -H "Authorization: Bearer sk_live_abc123..." \
+  https://api.eascrow.io/api/escrow/create</code></pre>
+            </div>
+
+            <h3>Rate Limiting</h3>
+            <table>
+                <tr>
+                    <th>Type</th>
+                    <th>Limit</th>
+                </tr>
+                <tr>
+                    <td>Anonymous</td>
+                    <td>100 req/min</td>
+                </tr>
+                <tr>
+                    <td>Authenticated</td>
+                    <td>1000 req/min</td>
+                </tr>
+                <tr>
+                    <td>Partner API</td>
+                    <td>5000 req/min</td>
+                </tr>
+            </table>
+
+            <h3>Error Responses</h3>
+            <table>
+                <tr>
+                    <th>Code</th>
+                    <th>Meaning</th>
+                </tr>
+                <tr>
+                    <td>200</td>
+                    <td>Success</td>
+                </tr>
+                <tr>
+                    <td>400</td>
+                    <td>Bad request</td>
+                </tr>
+                <tr>
+                    <td>401</td>
+                    <td>Unauthorized</td>
+                </tr>
+                <tr>
+                    <td>404</td>
+                    <td>Not found</td>
+                </tr>
+                <tr>
+                    <td>500</td>
+                    <td>Server error</td>
+                </tr>
+            </table>
+
+            <h3>SDKs Available</h3>
+            <p><strong>JavaScript/Node.js</strong></p>
+            <pre><code>npm install @eascrow/sdk
+
+const EscrowClient = require('@eascrow/sdk');
+const client = new EscrowClient({ apiKey: 'sk_live_...' });
+
+const escrow = await client.escrow.create({
+  buyerPhone: '+254700000000',
+  sellerPhone: '+256700000000',
+  amount: 250000,
+  sourceCurrency: 'KES'
+});</code></pre>
+
+            <p><strong>Python</strong></p>
+            <pre><code>pip install eascrow-sdk
+
+from eascrow import EscrowClient
+
+client = EscrowClient(api_key='sk_live_...')
+escrow = client.escrow.create(
+    buyer_phone='+254700000000',
+    seller_phone='+256700000000',
+    amount=250000
+)</code></pre>
+        </section>
+
+        <!-- Deployment Section -->
+        <section id="deployment" class="section">
+            <a onclick="switchSection('overview')" class="back-button">← Back to Overview</a>
+            
+            <h2>🚀 Complete Deployment Guide</h2>
+
+            <div class="alert success">
+                <strong>✅ Fully Automated:</strong> Use our deploy.sh script for hands-off deployment
+            </div>
+
+            <h3>Architecture Overview</h3>
+            <table>
+                <tr>
+                    <th>Component</th>
+                    <th>Technology</th>
+                    <th>Purpose</th>
+                </tr>
+                <tr>
+                    <td>Compute</td>
+                    <td>AWS EC2 t3.small</td>
+                    <td>Run Node.js application</td>
+                </tr>
+                <tr>
+                    <td>Database</td>
+                    <td>AWS RDS PostgreSQL 15</td>
+                    <td>Store all data</td>
+                </tr>
+                <tr>
+                    <td>Reverse Proxy</td>
+                    <td>Nginx</td>
+                    <td>Handle HTTPS, rate limit</td>
+                </tr>
+                <tr>
+                    <td>Process Manager</td>
+                    <td>PM2</td>
+                    <td>Manage application lifecycle</td>
+                </tr>
+                <tr>
+                    <td>SSL/TLS</td>
+                    <td>Let's Encrypt</td>
+                    <td>HTTPS certificates</td>
+                </tr>
+                <tr>
+                    <td>Monitoring</td>
+                    <td>AWS CloudWatch</td>
+                    <td>Logs, metrics, alarms</td>
+                </tr>
+            </table>
+
+            <h3>Deployment Steps</h3>
+
+            <div class="step">
+                <strong>Step 1: Prerequisites (5 min)</strong>
+                <div class="checklist">
+                    <ul>
+                        <li>AWS Account created</li>
+                        <li>EC2 key pair downloaded</li>
+                        <li>RDS security group created</li>
+                        <li>Domain name purchased</li>
+                        <li>Environment variables prepared</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="step">
+                <strong>Step 2: Launch Infrastructure (10 min)</strong>
+                <pre><code># Via AWS Console or CLI:
+# Create EC2 instance: t3.small, Ubuntu 22.04
+# Create RDS: PostgreSQL 15, db.t3.micro
+# Note the endpoints</code></pre>
+            </div>
+
+            <div class="step">
+                <strong>Step 3: SSH & Deploy (15 min)</strong>
+                <pre><code>ssh -i your-key.pem ubuntu@your-instance-ip
+
+# Clone and deploy
+git clone https://github.com/yourusername/escrow-mvp.git
+cd escrow-mvp
+bash deploy.sh
+
+# Follow prompts to enter:
+# - RDS endpoint
+# - Database password
+# - Domain name
+# - Payment provider keys</code></pre>
+            </div>
+
+            <div class="step">
+                <strong>Step 4: Configure DNS (5 min)</strong>
+                <pre><code># Point your domain to EC2 instance IP
+# Update DNS A record:
+api.eascrow.io → your-instance-public-ip</code></pre>
+            </div>
+
+            <div class="step">
+                <strong>Step 5: Verify (5 min)</strong>
+                <pre><code># Test health endpoint
+curl https://api.eascrow.io/api/health
+# Expected: {"status":"ok"}
+
+# Check application status
+pm2 status
+
+# View logs
+pm2 logs escrow-api</code></pre>
+            </div>
+
+            <h3>Post-Deployment Setup</h3>
+
+            <div class="checklist">
+                <ul>
+                    <li>Set up CloudWatch monitoring</li>
+                    <li>Configure SNS alerts</li>
+                    <li>Enable RDS backups</li>
+                    <li>Create CloudWatch dashboards</li>
+                    <li>Set up SSL certificate auto-renewal</li>
+                    <li>Configure firewall rules</li>
+                    <li>Enable CloudTrail logging</li>
+                    <li>Run test suite (test.sh)</li>
+                </ul>
+            </div>
+
+            <h3>Estimated Costs (Monthly)</h3>
+            <table>
+                <tr>
+                    <th>Service</th>
+                    <th>Tier</th>
+                    <th>Cost</th>
+                </tr>
+                <tr>
+                    <td>EC2</td>
+                    <td>t3.small (1 month)</td>
+                    <td>$15</td>
+                </tr>
+                <tr>
+                    <td>RDS</td>
+                    <td>db.t3.micro (1 month)</td>
+                    <td>$15</td>
+                </tr>
+                <tr>
+                    <td>Data Transfer</td>
+                    <td>Typical usage</td>
+                    <td>$5</td>
+                </tr>
+                <tr>
+                    <td>Backup Storage</td>
+                    <td>Automated backups</td>
+                    <td>$5</td>
+                </tr>
+                <tr>
+                    <td><strong>TOTAL</strong></td>
+                    <td></td>
+                    <td><strong>~$40/month</strong></td>
+                </tr>
+            </table>
+
+            <h3>Free Tier Eligible</h3>
+            <p>First 12 months: Use AWS free tier to reduce costs to ~$15/month</p>
+        </section>
+
+        <!-- Footer -->
+        <footer>
+            <p><strong>EA Escrow Platform v2.0</strong> — Production Operations Documentation</p>
+            <p>🚀 Ready to deploy. 📊 Complete monitoring. 📋 Full documentation.</p>
+            <p style="margin-top: 20px; font-size: 0.9em;">
+                Last Updated: January 2024 | Status: ✅ Production Ready
+            </p>
+        </footer>
+    </div>
+
+    <script>
+        function switchSection(sectionId) {
+            // Hide all sections
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+
+            // Show selected section
+            document.getElementById(sectionId).classList.add('active');
+            
+            // Mark button as active
+            event.target.classList.add('active');
+
+            // Scroll to top
+            window.scrollTo(0, 0);
+        }
+
+        function loadDoc(docName) {
+            // In a real implementation, this would load the markdown file
+            alert(`Loading: ${docName}\n\nIn production, this would display the full document.`);
+        }
+
+        // Add click handlers to cards
+        document.querySelectorAll('.card').forEach(card => {
+            card.addEventListener('click', function(e) {
+                if (e.target.tagName !== 'A' && !this.hasAttribute('onclick')) {
+                    switchSection('overview');
+                }
+            });
+        });
+
+        // Copy code to clipboard
+        document.querySelectorAll('pre').forEach(pre => {
+            pre.addEventListener('click', function() {
+                const code = this.querySelector('code').textContent;
+                navigator.clipboard.writeText(code);
+                alert('Code copied to clipboard!');
+            });
+        });
+    </script>
+</body>
+</html>

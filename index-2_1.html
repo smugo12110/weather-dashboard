@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EA Trade Escrow Web Panel</title>
+    <!-- Tailwind CSS Engine for Quick Scannable Layouts -->
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+</head>
+<body class="bg-slate-50 font-sans text-slate-800 antialiased min-h-screen">
+
+    <!-- Header Navigation -->
+    <header class="bg-indigo-900 text-white shadow-md">
+        <div class="max-w-5xl mx-auto px-4 py-4 flex justify-between items-center">
+            <h1 class="text-xl font-bold tracking-tight">EA Cross-Border Escrow <span class="text-xs bg-emerald-500 text-white px-2 py-0.5 rounded-full ml-2">MVP v1.2</span></h1>
+            <span class="text-sm font-medium text-indigo-200">Regional B2B Settlement — KE · UG · RW · TZ · BI</span>
+        </div>
+    </header>
+
+    <main class="max-w-5xl mx-auto px-4 py-8 grid grid-cols-1 md:grid-cols-3 gap-8">
+
+        <!-- Left & Center Columns: App Functionality Controls -->
+        <div class="md:col-span-2 space-y-6">
+
+            <!-- Section 1: Initiate Payment Module -->
+            <section class="bg-white rounded-xl shadow-xs border border-slate-100 p-6">
+                <h2 class="text-lg font-bold text-slate-900 mb-4 flex items-center gap-2">
+                    <span class="p-1.5 bg-indigo-50 text-indigo-700 rounded-md text-sm">01</span>
+                    Lock Funds in Escrow
+                </h2>
+
+                <form id="initiateForm" class="space-y-4" novalidate>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Buyer Phone (with country code)</label>
+                            <input type="text" id="buyerPhone" placeholder="e.g., 256770000000" required
+                                class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-hidden focus:border-indigo-500">
+                            <p class="field-error hidden text-xs text-rose-600 mt-1"></p>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Seller Phone (with country code)</label>
+                            <input type="text" id="sellerPhone" placeholder="e.g., 254712345678" required
+                                class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-hidden focus:border-indigo-500">
+                            <p class="field-error hidden text-xs text-rose-600 mt-1"></p>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Amount</label>
+                            <input type="number" id="amount" placeholder="e.g., 500000" required
+                                class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm font-semibold focus:outline-hidden focus:border-indigo-500">
+                            <p class="field-error hidden text-xs text-rose-600 mt-1"></p>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Buyer Pays In</label>
+                            <select id="sourceCurrency" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-hidden focus:border-indigo-500">
+                                <option value="KES">KES — Kenya</option>
+                                <option value="UGX" selected>UGX — Uganda</option>
+                                <option value="RWF">RWF — Rwanda</option>
+                                <option value="TZS">TZS — Tanzania</option>
+                                <option value="BIF">BIF — Burundi</option>
+                                <option value="USD">USD</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Seller Receives In</label>
+                            <select id="payoutCurrency" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-hidden focus:border-indigo-500">
+                                <option value="KES" selected>KES — Kenya</option>
+                                <option value="UGX">UGX — Uganda</option>
+                                <option value="RWF">RWF — Rwanda</option>
+                                <option value="TZS">TZS — Tanzania</option>
+                                <option value="BIF">BIF — Burundi</option>
+                                <option value="USD">USD</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Item / Order Details</label>
+                            <input type="text" id="itemDetails" placeholder="e.g., Freight consignment #4471"
+                                class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-hidden focus:border-indigo-500">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Buyer Email (optional)</label>
+                            <input type="email" id="buyerEmail" placeholder="buyer@trade.com"
+                                class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-hidden focus:border-indigo-500">
+                            <p class="field-error hidden text-xs text-rose-600 mt-1"></p>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2.5 px-4 rounded-lg text-sm transition-colors cursor-pointer shadow-xs">
+                        Generate Escrow Payment Contract
+                    </button>
+                </form>
+            </section>
+
+            <!-- Section 2: Release Operations Console -->
+            <section class="bg-white rounded-xl shadow-xs border border-slate-100 p-6">
+                <h2 class="text-lg font-bold text-slate-900 mb-4 flex items-center gap-2">
+                    <span class="p-1.5 bg-indigo-50 text-indigo-700 rounded-md text-sm">02</span>
+                    Release Funds to Seller
+                </h2>
+                <p class="text-xs text-slate-500 mb-4">Once delivery is confirmed, trigger payout to the seller's mobile money account.</p>
+
+                <form id="releaseForm" class="space-y-4" novalidate>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Active Escrow Reference Token ID</label>
+                        <div class="flex gap-2">
+                            <input type="text" id="releaseTxRef" placeholder="e.g., TX-ESCROW-A1B2C3D4" required
+                                class="flex-1 px-3 py-2 border border-slate-200 rounded-lg text-sm uppercase font-mono tracking-wider focus:outline-hidden focus:border-indigo-500">
+                            <button type="submit" class="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-2 px-6 rounded-lg text-sm transition-colors cursor-pointer shadow-xs">
+                                Authorize Payout
+                            </button>
+                        </div>
+                        <p class="field-error hidden text-xs text-rose-600 mt-1"></p>
+                    </div>
+                </form>
+            </section>
+
+            <!-- Section 3: Status Lookup -->
+            <section class="bg-white rounded-xl shadow-xs border border-slate-100 p-6">
+                <h2 class="text-lg font-bold text-slate-900 mb-4 flex items-center gap-2">
+                    <span class="p-1.5 bg-indigo-50 text-indigo-700 rounded-md text-sm">03</span>
+                    Check Escrow Status
+                </h2>
+                <form id="statusForm" class="space-y-1" novalidate>
+                    <div class="flex gap-2">
+                        <input type="text" id="statusTxRef" placeholder="e.g., TX-ESCROW-A1B2C3D4" required
+                            class="flex-1 px-3 py-2 border border-slate-200 rounded-lg text-sm uppercase font-mono tracking-wider focus:outline-hidden focus:border-indigo-500">
+                        <button type="submit" class="bg-slate-700 hover:bg-slate-800 text-white font-semibold py-2 px-6 rounded-lg text-sm transition-colors cursor-pointer shadow-xs">
+                            Lookup
+                        </button>
+                    </div>
+                    <p class="field-error hidden text-xs text-rose-600 mt-1"></p>
+                </form>
+            </section>
+        </div>
+
+        <!-- Right Side Panel Column: Console Output Logger -->
+        <div class="md:col-span-1 space-y-6">
+            <div class="bg-slate-900 rounded-xl text-slate-200 p-5 shadow-sm font-mono text-xs flex flex-col h-full min-h-[420px]">
+                <div class="flex justify-between items-center border-b border-slate-800 pb-3 mb-3">
+                    <span class="text-slate-400 font-bold uppercase tracking-wider text-[10px]">API Engine Terminal Monitor</span>
+                    <span class="h-2 w-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                </div>
+                <div id="terminalLog" class="flex-1 overflow-y-auto space-y-2 pr-1 scrollbar-thin scrollbar-thumb-slate-800">
+                    <div class="text-slate-500">// System initialized. Waiting for actions...</div>
+                </div>
+                <div class="border-t border-slate-800 pt-3 mt-3 flex justify-between text-[10px] text-slate-500">
+                    <span id="targetUrlLabel">Target: http://localhost:5000</span>
+                    <button onclick="document.getElementById('terminalLog').innerHTML = '';" class="hover:text-slate-300 underline cursor-pointer">Clear Logs</button>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- JavaScript Actions Logic Binder -->
+    <script>
+        // Change this if your backend runs somewhere other than localhost:5000
+        const BACKEND_URL = 'http://localhost:5000';
+        document.getElementById('targetUrlLabel').textContent = `Target: ${BACKEND_URL}`;
+
+        function logToTerminal(message, type = 'info') {
+            const consoleBox = document.getElementById('terminalLog');
+            const logEntry = document.createElement('div');
+            const timestamp = new Date().toLocaleTimeString();
+
+            let colorClass = 'text-indigo-300';
+            if (type === 'success') colorClass = 'text-emerald-400 font-semibold';
+            if (type === 'error') colorClass = 'text-rose-400 font-semibold';
+
+            logEntry.innerHTML = `<span class="text-slate-600">[${timestamp}]</span> <span class="${colorClass}">${message}</span>`;
+            consoleBox.appendChild(logEntry);
+            consoleBox.scrollTop = consoleBox.scrollHeight;
+        }
+
+        // --- Validation helpers -------------------------------------------------
+        const PHONE_RE = /^\d{9,15}$/;
+        const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        const TXREF_RE = /^TX-ESCROW-[A-Z0-9]+$/i;
+
+        function showFieldError(inputEl, message) {
+            inputEl.classList.add('border-rose-500');
+            inputEl.classList.remove('border-slate-200');
+            const errorEl = inputEl.parentElement.querySelector('.field-error');
+            if (errorEl) {
+                errorEl.textContent = message;
+                errorEl.classList.remove('hidden');
+            }
+        }
+
+        function clearFieldError(inputEl) {
+            inputEl.classList.remove('border-rose-500');
+            inputEl.classList.add('border-slate-200');
+            const errorEl = inputEl.parentElement.querySelector('.field-error');
+            if (errorEl) {
+                errorEl.classList.add('hidden');
+                errorEl.textContent = '';
+            }
+        }
+
+        function validatePhone(inputEl, label) {
+            const val = inputEl.value.trim();
+            if (!val) { showFieldError(inputEl, `${label} is required`); return false; }
+            if (!PHONE_RE.test(val)) { showFieldError(inputEl, 'Use digits only, with country code (e.g. 256770000000)'); return false; }
+            clearFieldError(inputEl);
+            return true;
+        }
+
+        function validateAmount(inputEl) {
+            const val = inputEl.value.trim();
+            if (!val) { showFieldError(inputEl, 'Amount is required'); return false; }
+            const num = Number(val);
+            if (!Number.isFinite(num) || num <= 0) { showFieldError(inputEl, 'Amount must be a positive number'); return false; }
+            clearFieldError(inputEl);
+            return true;
+        }
+
+        function validateEmailOptional(inputEl) {
+            const val = inputEl.value.trim();
+            if (!val) { clearFieldError(inputEl); return true; } // optional field
+            if (!EMAIL_RE.test(val)) { showFieldError(inputEl, 'Enter a valid email address'); return false; }
+            clearFieldError(inputEl);
+            return true;
+        }
+
+        function validateTxRef(inputEl) {
+            const val = inputEl.value.trim();
+            if (!val) { showFieldError(inputEl, 'Escrow reference is required'); return false; }
+            if (!TXREF_RE.test(val)) { showFieldError(inputEl, 'Format should look like TX-ESCROW-A1B2C3D4'); return false; }
+            clearFieldError(inputEl);
+            return true;
+        }
+
+        // Live validation as the user types/leaves a field, so problems surface
+        // before they ever hit "submit".
+        const buyerPhoneEl = document.getElementById('buyerPhone');
+        const sellerPhoneEl = document.getElementById('sellerPhone');
+        const amountEl = document.getElementById('amount');
+        const buyerEmailEl = document.getElementById('buyerEmail');
+        const releaseTxRefEl = document.getElementById('releaseTxRef');
+        const statusTxRefEl = document.getElementById('statusTxRef');
+
+        buyerPhoneEl.addEventListener('blur', () => validatePhone(buyerPhoneEl, 'Buyer phone'));
+        buyerPhoneEl.addEventListener('input', () => { if (!buyerPhoneEl.classList.contains('border-rose-500')) return; validatePhone(buyerPhoneEl, 'Buyer phone'); });
+
+        sellerPhoneEl.addEventListener('blur', () => validatePhone(sellerPhoneEl, 'Seller phone'));
+        sellerPhoneEl.addEventListener('input', () => { if (!sellerPhoneEl.classList.contains('border-rose-500')) return; validatePhone(sellerPhoneEl, 'Seller phone'); });
+
+        amountEl.addEventListener('blur', () => validateAmount(amountEl));
+        amountEl.addEventListener('input', () => { if (!amountEl.classList.contains('border-rose-500')) return; validateAmount(amountEl); });
+
+        buyerEmailEl.addEventListener('blur', () => validateEmailOptional(buyerEmailEl));
+        buyerEmailEl.addEventListener('input', () => { if (!buyerEmailEl.classList.contains('border-rose-500')) return; validateEmailOptional(buyerEmailEl); });
+
+        releaseTxRefEl.addEventListener('blur', () => validateTxRef(releaseTxRefEl));
+        releaseTxRefEl.addEventListener('input', () => { if (!releaseTxRefEl.classList.contains('border-rose-500')) return; validateTxRef(releaseTxRefEl); });
+
+        statusTxRefEl.addEventListener('blur', () => validateTxRef(statusTxRefEl));
+        statusTxRefEl.addEventListener('input', () => { if (!statusTxRefEl.classList.contains('border-rose-500')) return; validateTxRef(statusTxRefEl); });
+
+        // Handle Event Form Submission: INITIATE
+        document.getElementById('initiateForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const validPhoneBuyer = validatePhone(buyerPhoneEl, 'Buyer phone');
+            const validPhoneSeller = validatePhone(sellerPhoneEl, 'Seller phone');
+            const validAmount = validateAmount(amountEl);
+            const validEmail = validateEmailOptional(buyerEmailEl);
+
+            if (!validPhoneBuyer || !validPhoneSeller || !validAmount || !validEmail) {
+                logToTerminal('Fix the highlighted fields before submitting.', 'error');
+                const firstInvalid = document.querySelector('#initiateForm .border-rose-500');
+                if (firstInvalid) firstInvalid.focus();
+                return;
+            }
+
+            logToTerminal('Transmitting escrow initiation payload...', 'info');
+
+            const payload = {
+                buyerPhone: buyerPhoneEl.value.trim(),
+                sellerPhone: sellerPhoneEl.value.trim(),
+                amount: amountEl.value,
+                sourceCurrency: document.getElementById('sourceCurrency').value,
+                payoutCurrency: document.getElementById('payoutCurrency').value,
+                itemDetails: document.getElementById('itemDetails').value,
+                buyerEmail: buyerEmailEl.value.trim()
+            };
+
+            try {
+                const response = await fetch(`${BACKEND_URL}/api/escrow/initiate`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const data = await response.json();
+
+                if (response.ok) {
+                    logToTerminal(`CONTRACT INITIATED: ${data.txRef}`, 'success');
+                    logToTerminal(`Rate: 1 ${payload.sourceCurrency} = ${data.pricing.rateApplied} ${payload.payoutCurrency}`, 'info');
+                    logToTerminal(`Gross Payout: ${data.pricing.grossPayout} ${payload.payoutCurrency}`, 'info');
+                    logToTerminal(`Net Payout Estimate: ${data.pricing.netPayout} ${payload.payoutCurrency} (Fee: ${data.pricing.platformFeeAmount})`, 'info');
+                    releaseTxRefEl.value = data.txRef;
+                    statusTxRefEl.value = data.txRef;
+                    clearFieldError(releaseTxRefEl);
+                    clearFieldError(statusTxRefEl);
+                } else {
+                    logToTerminal(`Server Rejection: ${data.error}`, 'error');
+                }
+            } catch (err) {
+                logToTerminal(`Network Connect Fault: Ensure server runs on ${BACKEND_URL}`, 'error');
+            }
+        });
+
+        // Handle Event Form Submission: RELEASE
+        document.getElementById('releaseForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            if (!validateTxRef(releaseTxRefEl)) {
+                logToTerminal('Fix the highlighted field before submitting.', 'error');
+                releaseTxRefEl.focus();
+                return;
+            }
+
+            const txRef = releaseTxRefEl.value.trim().toUpperCase();
+            logToTerminal(`Authorizing escrow release for: ${txRef}...`, 'info');
+
+            try {
+                const response = await fetch(`${BACKEND_URL}/api/escrow/release`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ txRef })
+                });
+                const data = await response.json();
+
+                if (response.ok) {
+                    logToTerminal(`LIQUIDATION CONFIRMED: ${data.message}`, 'success');
+                    logToTerminal(`Disbursed: ${data.payoutDisbursed} ${data.payoutCurrency}`, 'success');
+                } else {
+                    logToTerminal(`Release Blocked: ${data.error}`, 'error');
+                }
+            } catch (err) {
+                logToTerminal(`Network Connect Fault: Ensure server runs on ${BACKEND_URL}`, 'error');
+            }
+        });
+
+        // Handle Event Form Submission: STATUS LOOKUP
+        document.getElementById('statusForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            if (!validateTxRef(statusTxRefEl)) {
+                logToTerminal('Fix the highlighted field before submitting.', 'error');
+                statusTxRefEl.focus();
+                return;
+            }
+
+            const txRef = statusTxRefEl.value.trim().toUpperCase();
+            logToTerminal(`Looking up status for: ${txRef}...`, 'info');
+
+            try {
+                const response = await fetch(`${BACKEND_URL}/api/escrow/${encodeURIComponent(txRef)}`);
+                const data = await response.json();
+
+                if (response.ok) {
+                    logToTerminal(`Status: ${data.status}`, 'success');
+                    logToTerminal(`Amount: ${data.sourceAmount} ${data.sourceCurrency} -> ${data.payoutCurrency}`, 'info');
+                } else {
+                    logToTerminal(`Lookup Failed: ${data.error}`, 'error');
+                }
+            } catch (err) {
+                logToTerminal(`Network Connect Fault: Ensure server runs on ${BACKEND_URL}`, 'error');
+            }
+        });
+    </script>
+</body>
+</html>

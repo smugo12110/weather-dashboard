@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EA Trade Escrow Web Panel</title>
+    <!-- Tailwind CSS Engine for Quick Scannable Layouts -->
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+</head>
+<body class="bg-slate-50 font-sans text-slate-800 antialiased min-h-screen">
+
+    <!-- Header Navigation -->
+    <header class="bg-indigo-900 text-white shadow-md">
+        <div class="max-w-5xl mx-auto px-4 py-4 flex justify-between items-center">
+            <h1 class="text-xl font-bold tracking-tight">EA Cross-Border Escrow <span class="text-xs bg-emerald-500 text-white px-2 py-0.5 rounded-full ml-2">MVP v2.0</span></h1>
+            <span class="text-sm font-medium text-indigo-200">Regional B2B Settlement — KE · UG · RW · TZ · BI</span>
+        </div>
+    </header>
+
+    <main class="max-w-5xl mx-auto px-4 py-8 grid grid-cols-1 md:grid-cols-3 gap-8">
+
+        <!-- Left & Center Columns: App Functionality Controls -->
+        <div class="md:col-span-2 space-y-6">
+
+            <!-- Section 1: Initiate Payment Module -->
+            <section class="bg-white rounded-xl shadow-xs border border-slate-100 p-6">
+                <h2 class="text-lg font-bold text-slate-900 mb-4 flex items-center gap-2">
+                    <span class="p-1.5 bg-indigo-50 text-indigo-700 rounded-md text-sm">01</span>
+                    Lock Funds in Escrow
+                </h2>
+
+                <form id="initiateForm" class="space-y-4" novalidate>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Buyer Phone (with country code)</label>
+                            <input type="text" id="buyerPhone" placeholder="e.g., 256770000000" required
+                                class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-hidden focus:border-indigo-500">
+                            <p class="field-error hidden text-xs text-rose-600 mt-1"></p>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Seller Phone (with country code)</label>
+                            <input type="text" id="sellerPhone" placeholder="e.g., 254712345678" required
+                                class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-hidden focus:border-indigo-500">
+                            <p class="field-error hidden text-xs text-rose-600 mt-1"></p>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Amount</label>
+                            <input type="number" id="amount" placeholder="e.g., 500000" required
+                                class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm font-semibold focus:outline-hidden focus:border-indigo-500">
+                            <p class="field-error hidden text-xs text-rose-600 mt-1"></p>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Buyer Pays In</label>
+                            <select id="sourceCurrency" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-hidden focus:border-indigo-500">
+                                <option value="KES">KES — Kenya</option>
+                                <option value="UGX" selected>UGX — Uganda</option>
+                                <option value="RWF">RWF — Rwanda</option>
+                                <option value="TZS">TZS — Tanzania</option>
+                                <option value="BIF">BIF — Burundi</option>
+                                <option value="USD">USD</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Seller Receives In</label>
+                            <select id="payoutCurrency" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-hidden focus:border-indigo-500">
+                                <option value="KES" selected>KES — Kenya</option>
+                                <option value="UGX">UGX — Uganda</option>
+                                <option value="RWF">RWF — Rwanda</option>
+                                <option value="TZS">TZS — Tanzania</option>
+                                <option value="BIF">BIF — Burundi</option>
+                                <option value="USD">USD</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Item / Order Details</label>
+                            <input type="text" id="itemDetails" placeholder="e.g., Freight consignment #4471"
+                                class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-hidden focus:border-indigo-500">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Buyer Email (optional)</label>
+                            <input type="email" id="buyerEmail" placeholder="buyer@trade.com"
+                                class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-hidden focus:border-indigo-500">
+                            <p class="field-error hidden text-xs text-rose-600 mt-1"></p>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2.5 px-4 rounded-lg text-sm transition-colors cursor-pointer shadow-xs">
+                        Generate Escrow Payment Contract
+                    </button>
+                </form>
+
+                <!-- AI Risk Assessment badge, shown after a successful initiate -->
+                <div id="riskBadge" class="hidden mt-4 p-3 rounded-lg border text-sm">
+                    <div class="flex items-center gap-2 font-semibold">
+                        <span>🧠 AI Risk Assessment:</span>
+                        <span id="riskLevelText"></span>
+                    </div>
+                    <ul id="riskReasons" class="mt-1 ml-5 list-disc text-xs space-y-0.5"></ul>
+                    <p class="mt-1 text-[10px] text-slate-500">Rule-based heuristic engine — flags patterns worth a human look.</p>
+                </div>
+
+                <!-- Buyer OTP authentication, shown after a successful initiate -->
+                <div id="buyerOtpBox" class="hidden mt-4 p-4 rounded-lg border border-indigo-200 bg-indigo-50">
+                    <p class="text-xs font-bold text-indigo-800 uppercase tracking-wider mb-1">🔐 Buyer Authentication Required</p>
+                    <p class="text-xs text-slate-600 mb-2">A 6-digit OTP code has been sent to the buyer's phone via SMS. If not received within 30 seconds, request a voice call.</p>
+                    <div class="flex gap-2 mb-2">
+                        <input type="text" id="buyerOtpInput" maxlength="6" placeholder="123456"
+                            class="flex-1 px-3 py-2 border border-slate-200 rounded-lg text-sm font-mono tracking-widest focus:outline-hidden focus:border-indigo-500">
+                        <button id="verifyBuyerOtpBtn" class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-4 rounded-lg text-sm cursor-pointer">Verify</button>
+                        <button id="buyerVoiceCallBtn" type="button" class="bg-amber-600 hover:bg-amber-700 text-white font-semibold py-2 px-4 rounded-lg text-sm cursor-pointer" title="Haven't received SMS? Request a voice call instead">📞 Call</button>
+                    </div>
+                    <p class="field-error hidden text-xs text-rose-600 mt-1"></p>
+                    <p id="buyerOtpStatus" class="text-xs mt-1"></p>
+                </div>
+            </section>
+
+            <!-- Section 2: Simulate Payment Confirmation (dev-only stand-in for the Flutterwave webhook) -->
+            <section class="bg-white rounded-xl shadow-xs border border-slate-100 p-6">
+                <h2 class="text-lg font-bold text-slate-900 mb-4 flex items-center gap-2">
+                    <span class="p-1.5 bg-indigo-50 text-indigo-700 rounded-md text-sm">02</span>
+                    Confirm Payment Received
+                </h2>
+                <p class="text-xs text-slate-500 mb-4">In production, Flutterwave calls this automatically once the buyer's payment clears. This button simulates that webhook for testing. Requires buyer authentication above.</p>
+                <form id="webhookForm" class="flex gap-2" novalidate>
+                    <input type="text" id="webhookTxRef" placeholder="e.g., TX-ESCROW-A1B2C3D4" required
+                        class="flex-1 px-3 py-2 border border-slate-200 rounded-lg text-sm uppercase font-mono tracking-wider focus:outline-hidden focus:border-indigo-500">
+                    <button type="submit" class="bg-amber-600 hover:bg-amber-700 text-white font-semibold py-2 px-6 rounded-lg text-sm transition-colors cursor-pointer shadow-xs">
+                        Simulate Funding
+                    </button>
+                </form>
+                <p class="field-error hidden text-xs text-rose-600 mt-1"></p>
+            </section>
+
+            <!-- Section 3: Release Operations Console -->
+            <section class="bg-white rounded-xl shadow-xs border border-slate-100 p-6">
+                <h2 class="text-lg font-bold text-slate-900 mb-4 flex items-center gap-2">
+                    <span class="p-1.5 bg-indigo-50 text-indigo-700 rounded-md text-sm">03</span>
+                    Release Funds to Seller
+                </h2>
+                <p class="text-xs text-slate-500 mb-4">Once delivery is confirmed, the seller authenticates with their own code, then payout is authorized.</p>
+
+                <div class="mb-4">
+                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Active Escrow Reference Token ID</label>
+                    <input type="text" id="releaseTxRef" placeholder="e.g., TX-ESCROW-A1B2C3D4"
+                        class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm uppercase font-mono tracking-wider focus:outline-hidden focus:border-indigo-500">
+                    <p class="field-error hidden text-xs text-rose-600 mt-1"></p>
+                </div>
+
+                <!-- Seller OTP authentication -->
+                <div class="p-4 rounded-lg border border-emerald-200 bg-emerald-50 mb-4">
+                    <p class="text-xs font-bold text-emerald-800 uppercase tracking-wider mb-1">🔐 Seller Authentication Required</p>
+                    <p class="text-xs text-slate-600 mb-2">A 6-digit OTP code has been sent to the seller's phone via SMS. If not received within 30 seconds, request a voice call.</p>
+                    <div class="flex gap-2 mb-2">
+                        <input type="text" id="sellerOtpInput" maxlength="6" placeholder="123456"
+                            class="flex-1 px-3 py-2 border border-slate-200 rounded-lg text-sm font-mono tracking-widest focus:outline-hidden focus:border-emerald-500">
+                        <button id="verifySellerOtpBtn" class="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-2 px-4 rounded-lg text-sm cursor-pointer">Verify</button>
+                        <button id="sellerVoiceCallBtn" type="button" class="bg-amber-600 hover:bg-amber-700 text-white font-semibold py-2 px-4 rounded-lg text-sm cursor-pointer" title="Haven't received SMS? Request a voice call instead">📞 Call</button>
+                    </div>
+                    <p class="field-error hidden text-xs text-rose-600 mt-1"></p>
+                    <p id="sellerOtpStatus" class="text-xs mt-1"></p>
+                </div>
+
+                <button id="releaseBtn" disabled title="Verify seller code first"
+                    class="w-full bg-slate-300 text-slate-500 font-semibold py-2.5 px-4 rounded-lg text-sm cursor-not-allowed transition-colors">
+                    Authorize Payout (verify seller code first)
+                </button>
+            </section>
+
+            <!-- Section 4: Status Lookup -->
+            <section class="bg-white rounded-xl shadow-xs border border-slate-100 p-6">
+                <h2 class="text-lg font-bold text-slate-900 mb-4 flex items-center gap-2">
+                    <span class="p-1.5 bg-indigo-50 text-indigo-700 rounded-md text-sm">04</span>
+                    Check Escrow Status
+                </h2>
+                <form id="statusForm" class="space-y-1" novalidate>
+                    <div class="flex gap-2">
+                        <input type="text" id="statusTxRef" placeholder="e.g., TX-ESCROW-A1B2C3D4" required
+                            class="flex-1 px-3 py-2 border border-slate-200 rounded-lg text-sm uppercase font-mono tracking-wider focus:outline-hidden focus:border-indigo-500">
+                        <button type="submit" class="bg-slate-700 hover:bg-slate-800 text-white font-semibold py-2 px-6 rounded-lg text-sm transition-colors cursor-pointer shadow-xs">
+                            Lookup
+                        </button>
+                    </div>
+                    <p class="field-error hidden text-xs text-rose-600 mt-1"></p>
+                </form>
+            </section>
+        </div>
+
+        <!-- Right Side Panel Column: Console Output Logger -->
+        <div class="md:col-span-1 space-y-6">
+            <div class="bg-slate-900 rounded-xl text-slate-200 p-5 shadow-sm font-mono text-xs flex flex-col h-full min-h-[420px]">
+                <div class="flex justify-between items-center border-b border-slate-800 pb-3 mb-3">
+                    <span class="text-slate-400 font-bold uppercase tracking-wider text-[10px]">API Engine Terminal Monitor</span>
+                    <span class="h-2 w-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                </div>
+                <div id="terminalLog" class="flex-1 overflow-y-auto space-y-2 pr-1 scrollbar-thin scrollbar-thumb-slate-800">
+                    <div class="text-slate-500">// System initialized. Waiting for actions...</div>
+                </div>
+                <div class="border-t border-slate-800 pt-3 mt-3 flex justify-between text-[10px] text-slate-500">
+                    <span id="targetUrlLabel">Target: http://localhost:5000</span>
+                    <button onclick="document.getElementById('terminalLog').innerHTML = '';" class="hover:text-slate-300 underline cursor-pointer">Clear Logs</button>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- JavaScript Actions Logic Binder -->
+    <script>
+        const BACKEND_URL = 'http://localhost:5000';
+        document.getElementById('targetUrlLabel').textContent = `Target: ${BACKEND_URL}`;
+
+        let sellerVerifiedForCurrentTx = false;
+
+        function logToTerminal(message, type = 'info') {
+            const consoleBox = document.getElementById('terminalLog');
+            const logEntry = document.createElement('div');
+            const timestamp = new Date().toLocaleTimeString();
+
+            let colorClass = 'text-indigo-300';
+            if (type === 'success') colorClass = 'text-emerald-400 font-semibold';
+            if (type === 'error') colorClass = 'text-rose-400 font-semibold';
+
+            logEntry.innerHTML = `<span class="text-slate-600">[${timestamp}]</span> <span class="${colorClass}">${message}</span>`;
+            consoleBox.appendChild(logEntry);
+            consoleBox.scrollTop = consoleBox.scrollHeight;
+        }
+
+        // --- Validation helpers -------------------------------------------------
+        const PHONE_RE = /^\d{9,15}$/;
+        const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        const TXREF_RE = /^TX-ESCROW-[A-Z0-9]+$/i;
+        const OTP_RE = /^\d{6}$/;
+
+        function showFieldError(inputEl, message) {
+            inputEl.classList.add('border-rose-500');
+            inputEl.classList.remove('border-slate-200');
+            const errorEl = inputEl.parentElement.querySelector('.field-error');
+            if (errorEl) {
+                errorEl.textContent = message;
+                errorEl.classList.remove('hidden');
+            }
+        }
+
+        function clearFieldError(inputEl) {
+            inputEl.classList.remove('border-rose-500');
+            inputEl.classList.add('border-slate-200');
+            const errorEl = inputEl.parentElement.querySelector('.field-error');
+            if (errorEl) {
+                errorEl.classList.add('hidden');
+                errorEl.textContent = '';
+            }
+        }
+
+        function validatePhone(inputEl, label) {
+            const val = inputEl.value.trim();
+            if (!val) { showFieldError(inputEl, `${label} is required`); return false; }
+            if (!PHONE_RE.test(val)) { showFieldError(inputEl, 'Use digits only, with country code (e.g. 256770000000)'); return false; }
+            clearFieldError(inputEl);
+            return true;
+        }
+
+        function validateAmount(inputEl) {
+            const val = inputEl.value.trim();
+            if (!val) { showFieldError(inputEl, 'Amount is required'); return false; }
+            const num = Number(val);
+            if (!Number.isFinite(num) || num <= 0) { showFieldError(inputEl, 'Amount must be a positive number'); return false; }
+            clearFieldError(inputEl);
+            return true;
+        }
+
+        function validateEmailOptional(inputEl) {
+            const val = inputEl.value.trim();
+            if (!val) { clearFieldError(inputEl); return true; }
+            if (!EMAIL_RE.test(val)) { showFieldError(inputEl, 'Enter a valid email address'); return false; }
+            clearFieldError(inputEl);
+            return true;
+        }
+
+        function validateTxRef(inputEl) {
+            const val = inputEl.value.trim();
+            if (!val) { showFieldError(inputEl, 'Escrow reference is required'); return false; }
+            if (!TXREF_RE.test(val)) { showFieldError(inputEl, 'Format should look like TX-ESCROW-A1B2C3D4'); return false; }
+            clearFieldError(inputEl);
+            return true;
+        }
+
+        function validateOtp(inputEl) {
+            const val = inputEl.value.trim();
+            if (!val) { showFieldError(inputEl, 'Enter the 6-digit code'); return false; }
+            if (!OTP_RE.test(val)) { showFieldError(inputEl, 'Code must be exactly 6 digits'); return false; }
+            clearFieldError(inputEl);
+            return true;
+        }
+
+        const buyerPhoneEl = document.getElementById('buyerPhone');
+        const sellerPhoneEl = document.getElementById('sellerPhone');
+        const amountEl = document.getElementById('amount');
+        const buyerEmailEl = document.getElementById('buyerEmail');
+        const releaseTxRefEl = document.getElementById('releaseTxRef');
+        const statusTxRefEl = document.getElementById('statusTxRef');
+        const webhookTxRefEl = document.getElementById('webhookTxRef');
+        const buyerOtpInputEl = document.getElementById('buyerOtpInput');
+        const sellerOtpInputEl = document.getElementById('sellerOtpInput');
+        const releaseBtn = document.getElementById('releaseBtn');
+
+        function wireLiveValidation(el, validateFn, ...args) {
+            el.addEventListener('blur', () => validateFn(el, ...args));
+            el.addEventListener('input', () => { if (!el.classList.contains('border-rose-500')) return; validateFn(el, ...args); });
+        }
+
+        wireLiveValidation(buyerPhoneEl, validatePhone, 'Buyer phone');
+        wireLiveValidation(sellerPhoneEl, validatePhone, 'Seller phone');
+        wireLiveValidation(amountEl, validateAmount);
+        wireLiveValidation(buyerEmailEl, validateEmailOptional);
+        wireLiveValidation(releaseTxRefEl, validateTxRef);
+        wireLiveValidation(statusTxRefEl, validateTxRef);
+        wireLiveValidation(webhookTxRefEl, validateTxRef);
+        wireLiveValidation(buyerOtpInputEl, validateOtp);
+        wireLiveValidation(sellerOtpInputEl, validateOtp);
+
+        function updateReleaseButtonState() {
+            if (sellerVerifiedForCurrentTx) {
+                releaseBtn.disabled = false;
+                releaseBtn.textContent = 'Authorize Payout';
+                releaseBtn.title = '';
+                releaseBtn.className = 'w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-2.5 px-4 rounded-lg text-sm cursor-pointer transition-colors';
+            } else {
+                releaseBtn.disabled = true;
+                releaseBtn.textContent = 'Authorize Payout (verify seller code first)';
+                releaseBtn.title = 'Verify seller code first';
+                releaseBtn.className = 'w-full bg-slate-300 text-slate-500 font-semibold py-2.5 px-4 rounded-lg text-sm cursor-not-allowed transition-colors';
+            }
+        }
+
+        releaseTxRefEl.addEventListener('input', () => {
+            sellerVerifiedForCurrentTx = false;
+            document.getElementById('sellerOtpStatus').textContent = '';
+            updateReleaseButtonState();
+        });
+
+        // Handle Event Form Submission: INITIATE
+        document.getElementById('initiateForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const validPhoneBuyer = validatePhone(buyerPhoneEl, 'Buyer phone');
+            const validPhoneSeller = validatePhone(sellerPhoneEl, 'Seller phone');
+            const validAmount = validateAmount(amountEl);
+            const validEmail = validateEmailOptional(buyerEmailEl);
+
+            if (!validPhoneBuyer || !validPhoneSeller || !validAmount || !validEmail) {
+                logToTerminal('Fix the highlighted fields before submitting.', 'error');
+                const firstInvalid = document.querySelector('#initiateForm .border-rose-500');
+                if (firstInvalid) firstInvalid.focus();
+                return;
+            }
+
+            logToTerminal('Transmitting escrow initiation payload...', 'info');
+
+            const payload = {
+                buyerPhone: buyerPhoneEl.value.trim(),
+                sellerPhone: sellerPhoneEl.value.trim(),
+                amount: amountEl.value,
+                sourceCurrency: document.getElementById('sourceCurrency').value,
+                payoutCurrency: document.getElementById('payoutCurrency').value,
+                itemDetails: document.getElementById('itemDetails').value,
+                buyerEmail: buyerEmailEl.value.trim()
+            };
+
+            try {
+                const response = await fetch(`${BACKEND_URL}/api/escrow/initiate`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const data = await response.json();
+
+                if (response.ok) {
+                    logToTerminal(`CONTRACT INITIATED: ${data.txRef}`, 'success');
+                    logToTerminal(`Rate: 1 ${payload.sourceCurrency} = ${data.pricing.rateApplied} ${payload.payoutCurrency}`, 'info');
+                    logToTerminal(`Gross Payout: ${data.pricing.grossPayout} ${payload.payoutCurrency}`, 'info');
+                    logToTerminal(`Net Payout Estimate: ${data.pricing.netPayout} ${payload.payoutCurrency} (Fee: ${data.pricing.platformFeeAmount})`, 'info');
+                    logToTerminal(`AI Risk Assessment: ${data.risk.level.toUpperCase()} (score ${data.risk.score}/100)`, data.risk.level === 'high' ? 'error' : 'info');
+                    logToTerminal(data.message, 'success');
+
+                    webhookTxRefEl.value = data.txRef;
+                    releaseTxRefEl.value = data.txRef;
+                    statusTxRefEl.value = data.txRef;
+                    [webhookTxRefEl, releaseTxRefEl, statusTxRefEl].forEach(clearFieldError);
+                    sellerVerifiedForCurrentTx = false;
+                    document.getElementById('sellerOtpStatus').textContent = '';
+                    updateReleaseButtonState();
+
+                    // Risk badge
+                    const riskBadge = document.getElementById('riskBadge');
+                    const riskLevelText = document.getElementById('riskLevelText');
+                    const riskReasons = document.getElementById('riskReasons');
+                    riskBadge.classList.remove('hidden');
+                    const colors = {
+                        low: 'border-emerald-200 bg-emerald-50 text-emerald-800',
+                        medium: 'border-amber-200 bg-amber-50 text-amber-800',
+                        high: 'border-rose-200 bg-rose-50 text-rose-800',
+                    };
+                    riskBadge.className = `mt-4 p-3 rounded-lg border text-sm ${colors[data.risk.level]}`;
+                    riskLevelText.textContent = `${data.risk.level.toUpperCase()} (${data.risk.score}/100)`;
+                    riskReasons.innerHTML = data.risk.reasons.length
+                        ? data.risk.reasons.map(r => `<li>${r}</li>`).join('')
+                        : '<li>No risk signals detected</li>';
+
+                    // Buyer OTP box
+                    document.getElementById('buyerOtpBox').classList.remove('hidden');
+                    document.getElementById('buyerOtpBox').dataset.txRef = data.txRef;
+                    document.getElementById('buyerOtpStatus').textContent = '';
+                    buyerOtpInputEl.value = '';
+                    sellerOtpInputEl.value = '';
+                    clearFieldError(buyerOtpInputEl);
+                    clearFieldError(sellerOtpInputEl);
+                } else {
+                    logToTerminal(`Server Rejection: ${data.error}`, 'error');
+                }
+            } catch (err) {
+                logToTerminal(`Network Connect Fault: Ensure server runs on ${BACKEND_URL}`, 'error');
+            }
+        });
+
+        // Handle Buyer OTP verification
+        document.getElementById('verifyBuyerOtpBtn').addEventListener('click', async () => {
+            if (!validateOtp(buyerOtpInputEl)) {
+                logToTerminal('Enter a valid 6-digit buyer code before verifying.', 'error');
+                buyerOtpInputEl.focus();
+                return;
+            }
+            const txRef = document.getElementById('buyerOtpBox').dataset.txRef;
+            logToTerminal(`Verifying buyer OTP for ${txRef}...`, 'info');
+            try {
+                const response = await fetch(`${BACKEND_URL}/api/escrow/verify-otp`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ txRef, role: 'buyer', code: buyerOtpInputEl.value.trim() })
+                });
+                const data = await response.json();
+                const statusEl = document.getElementById('buyerOtpStatus');
+                if (response.ok) {
+                    statusEl.textContent = '✅ Buyer authenticated';
+                    statusEl.className = 'text-xs mt-1 text-emerald-700 font-semibold';
+                    logToTerminal('Buyer authentication successful.', 'success');
+                } else {
+                    statusEl.textContent = `❌ ${data.error}`;
+                    statusEl.className = 'text-xs mt-1 text-rose-600 font-semibold';
+                    logToTerminal(`Buyer OTP failed: ${data.error}`, 'error');
+                }
+            } catch (err) {
+                logToTerminal(`Network Connect Fault: Ensure server runs on ${BACKEND_URL}`, 'error');
+            }
+        });
+
+        // Handle Buyer Voice Call request
+        document.getElementById('buyerVoiceCallBtn').addEventListener('click', async (e) => {
+            e.preventDefault();
+            const txRef = document.getElementById('buyerOtpBox').dataset.txRef;
+            logToTerminal(`Requesting voice call for buyer (${txRef})...`, 'info');
+            try {
+                const response = await fetch(`${BACKEND_URL}/api/escrow/request-voice-call`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ txRef, role: 'buyer' })
+                });
+                const data = await response.json();
+                if (response.ok) {
+                    logToTerminal(data.message, 'success');
+                } else {
+                    logToTerminal(`Voice call failed: ${data.error}`, 'error');
+                }
+            } catch (err) {
+                logToTerminal(`Network Connect Fault`, 'error');
+            }
+        });
+
+        // Handle Seller OTP verification
+        document.getElementById('verifySellerOtpBtn').addEventListener('click', async () => {
+            if (!validateTxRef(releaseTxRefEl)) {
+                logToTerminal('Enter a valid escrow reference before verifying the seller code.', 'error');
+                releaseTxRefEl.focus();
+                return;
+            }
+            if (!validateOtp(sellerOtpInputEl)) {
+                logToTerminal('Enter a valid 6-digit seller code before verifying.', 'error');
+                sellerOtpInputEl.focus();
+                return;
+            }
+            const txRef = releaseTxRefEl.value.trim().toUpperCase();
+            logToTerminal(`Verifying seller OTP for ${txRef}...`, 'info');
+            try {
+                const response = await fetch(`${BACKEND_URL}/api/escrow/verify-otp`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ txRef, role: 'seller', code: sellerOtpInputEl.value.trim() })
+                });
+                const data = await response.json();
+                const statusEl = document.getElementById('sellerOtpStatus');
+                if (response.ok) {
+                    statusEl.textContent = '✅ Seller authenticated';
+                    statusEl.className = 'text-xs mt-1 text-emerald-700 font-semibold';
+                    logToTerminal('Seller authentication successful.', 'success');
+                    sellerVerifiedForCurrentTx = true;
+                    updateReleaseButtonState();
+                } else {
+                    statusEl.textContent = `❌ ${data.error}`;
+                    statusEl.className = 'text-xs mt-1 text-rose-600 font-semibold';
+                    logToTerminal(`Seller OTP failed: ${data.error}`, 'error');
+                }
+            } catch (err) {
+                logToTerminal(`Network Connect Fault`, 'error');
+            }
+        });
+
+        // Handle Seller Voice Call request
+        document.getElementById('sellerVoiceCallBtn').addEventListener('click', async (e) => {
+            e.preventDefault();
+            if (!validateTxRef(releaseTxRefEl)) {
+                logToTerminal('Enter a valid escrow reference to request a voice call.', 'error');
+                releaseTxRefEl.focus();
+                return;
+            }
+            const txRef = releaseTxRefEl.value.trim().toUpperCase();
+            logToTerminal(`Requesting voice call for seller (${txRef})...`, 'info');
+            try {
+                const response = await fetch(`${BACKEND_URL}/api/escrow/request-voice-call`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ txRef, role: 'seller' })
+                });
+                const data = await response.json();
+                if (response.ok) {
+                    logToTerminal(data.message, 'success');
+                } else {
+                    logToTerminal(`Voice call failed: ${data.error}`, 'error');
+                }
+            } catch (err) {
+                logToTerminal(`Network Connect Fault`, 'error');
+            }
+        });
+
+        // Handle Event Form Submission: SIMULATE WEBHOOK
+        document.getElementById('webhookForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            if (!validateTxRef(webhookTxRefEl)) {
+                logToTerminal('Fix the highlighted field before submitting.', 'error');
+                webhookTxRefEl.focus();
+                return;
+            }
+
+            const txRef = webhookTxRefEl.value.trim().toUpperCase();
+            logToTerminal(`Simulating Flutterwave webhook for: ${txRef}...`, 'info');
+
+            try {
+                const response = await fetch(`${BACKEND_URL}/api/webhooks/flutterwave`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'verif-hash': 'dev-only-change-me' },
+                    body: JSON.stringify({ txRef, status: 'successful' })
+                });
+                const data = await response.json();
+
+                if (response.ok) {
+                    logToTerminal(`FUNDING CONFIRMED: ${data.message}`, 'success');
+                } else {
+                    logToTerminal(`Webhook Rejected: ${data.error}`, 'error');
+                }
+            } catch (err) {
+                logToTerminal(`Network Connect Fault`, 'error');
+            }
+        });
+
+        // Handle Event Submission: RELEASE
+        releaseBtn.addEventListener('click', async () => {
+            if (releaseBtn.disabled) return;
+
+            if (!validateTxRef(releaseTxRefEl)) {
+                logToTerminal('Fix the highlighted field before submitting.', 'error');
+                releaseTxRefEl.focus();
+                return;
+            }
+
+            const txRef = releaseTxRefEl.value.trim().toUpperCase();
+            logToTerminal(`Authorizing escrow release for: ${txRef}...`, 'info');
+
+            try {
+                const response = await fetch(`${BACKEND_URL}/api/escrow/release`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ txRef })
+                });
+                const data = await response.json();
+
+                if (response.ok) {
+                    logToTerminal(`LIQUIDATION CONFIRMED: ${data.message}`, 'success');
+                    logToTerminal(`Disbursed: ${data.payoutDisbursed} ${data.payoutCurrency}`, 'success');
+                } else {
+                    logToTerminal(`Release Blocked: ${data.error}`, 'error');
+                }
+            } catch (err) {
+                logToTerminal(`Network Connect Fault`, 'error');
+            }
+        });
+
+        // Handle Event Form Submission: STATUS LOOKUP
+        document.getElementById('statusForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            if (!validateTxRef(statusTxRefEl)) {
+                logToTerminal('Fix the highlighted field before submitting.', 'error');
+                statusTxRefEl.focus();
+                return;
+            }
+
+            const txRef = statusTxRefEl.value.trim().toUpperCase();
+            logToTerminal(`Looking up status for: ${txRef}...`, 'info');
+
+            try {
+                const response = await fetch(`${BACKEND_URL}/api/escrow/${encodeURIComponent(txRef)}`);
+                const data = await response.json();
+
+                if (response.ok) {
+                    logToTerminal(`Status: ${data.status}`, 'success');
+                    logToTerminal(`Amount: ${data.sourceAmount} ${data.sourceCurrency} -> ${data.payoutCurrency}`, 'info');
+                    logToTerminal(`Buyer verified: ${data.otp.buyerVerified} | Seller verified: ${data.otp.sellerVerified}`, 'info');
+                    logToTerminal(`AI Risk: ${data.risk.level.toUpperCase()} (${data.risk.score}/100)`, 'info');
+                } else {
+                    logToTerminal(`Lookup Failed: ${data.error}`, 'error');
+                }
+            } catch (err) {
+                logToTerminal(`Network Connect Fault`, 'error');
+            }
+        });
+    </script>
+</body>
+</html>

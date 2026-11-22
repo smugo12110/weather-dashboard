@@ -1,0 +1,307 @@
+// EA Escrow Platform — Prisma Schema with Field-Level Encryption
+// Sensitive fields are automatically encrypted with AES-256-GCM
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// ============================================================================
+// MERCHANTS (Platform Users)
+// ============================================================================
+
+model Merchant {
+  id                    String   @id @default(uuid())
+  
+  // Public fields
+  username              String   @unique
+  email                 String   @unique
+  businessName          String?
+  country               String   @db.VarChar(10)
+  phoneNumber           String
+  
+  // 🔐 ENCRYPTED FIELDS (stored as "iv:tag:ciphertext")
+  bankAccountNumber     String?  // AES-256-GCM encrypted
+  bankAccountHash       String?  @unique // HMAC-SHA256 blind index (for searching without decryption)
+  nationalId            String?  // AES-256-GCM encrypted
+  nationalIdHash        String?  @unique
+  taxId                 String?  // AES-256-GCM encrypted
+  taxIdHash             String?  @unique
+  
+  // Status & Compliance
+  kycStatus             String   @default("pending") // pending, verified, rejected
+  kycDocumentId         String?
+  kycVerifiedAt         DateTime?
+  amlStatus             String   @default("pending") // pending, clear, flagged
+  riskLevel             String   @default("medium")  // low, medium, high
+  monthlyLimitCents     BigInt   @default(500000000) // in cents, local currency
+  
+  // Relations
+  buyerEscrows          Escrow[] @relation("buyer")
+  sellerEscrows         Escrow[] @relation("seller")
+  apiKeys               ApiKey[]
+  webhooks              Webhook[]
+  auditLogs             AuditLog[]
+  dailyAnalytics        DailyAnalytic[]
+  
+  // Timestamps
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+}
+
+// ============================================================================
+// ESCROWS (Transactions)
+// ============================================================================
+
+model Escrow {
+  id                    String   @id @default(uuid())
+  txRef                 String   @unique
+  
+  // Parties
+  buyer                 Merchant? @relation("buyer", fields: [buyerId], references: [id])
+  buyerId               String?
+  buyerPhone            String
+  buyerEmail            String?
+  
+  seller                Merchant? @relation("seller", fields: [sellerId], references: [id])
+  sellerId              String?
+  sellerPhone           String
+  
+  // Transaction Details
+  itemDetails           String?
+  sourceCurrency        String   @db.VarChar(3)
+  payoutCurrency        String   @db.VarChar(3)
+  sourceAmountCents     BigInt   // in cents
+  grossPayoutCents      BigInt
+  platformFeeCents      BigInt
+  insuranceFeeCents     BigInt   @default(0)
+  netPayoutCents        BigInt
+  
+  // Status & Risk
+  status                String   @default("pending_funding") // pending_funding, funded, released, disputed, cancelled
+  riskScore             Int      @default(0)
+  riskLevel             String   @default("low")
+  
+  // Verification
+  buyerOtpVerified      Boolean  @default(false)
+  buyerOtpVerifiedAt    DateTime?
+  sellerOtpVerified     Boolean  @default(false)
+  sellerOtpVerifiedAt   DateTime?
+  
+  // Timeline
+  fundedAt              DateTime?
+  releasedAt            DateTime?
+  
+  // Disputes & Insurance
+  dispute               Dispute?
+  insuranceClaimed      Boolean  @default(false)
+  
+  // Relations
+  otpCodes              OtpCode[]
+  transactions          Transaction[]
+  
+  // Timestamps
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+  
+  @@index([buyerId])
+  @@index([sellerId])
+  @@index([status])
+  @@index([createdAt])
+}
+
+// ============================================================================
+// OTP CODES (Time-Sensitive)
+// ============================================================================
+
+model OtpCode {
+  id                    String   @id @default(uuid())
+  
+  escrow                Escrow   @relation(fields: [escrowId], references: [id], onDelete: Cascade)
+  escrowId              String
+  
+  role                  String   // buyer, seller
+  code                  String   @db.VarChar(6) // 6-digit OTP
+  attempts              Int      @default(0)
+  verified              Boolean  @default(false)
+  expiresAt             DateTime
+  
+  createdAt             DateTime @default(now())
+  
+  @@index([escrowId])
+  @@index([expiresAt])
+}
+
+// ============================================================================
+// DISPUTES (Conflict Resolution)
+// ============================================================================
+
+model Dispute {
+  id                    String   @id @default(uuid())
+  
+  escrow                Escrow   @relation(fields: [escrowId], references: [id], onDelete: Cascade)
+  escrowId              String   @unique
+  
+  filedBy               String   // buyer, seller
+  type                  String   // non-delivery, partial-delivery, quality, other
+  description           String
+  evidenceDocs          Json?    // array of {url, type, uploadedAt}
+  
+  // Adjudication
+  status                String   @default("pending") // pending, buyer_responded, seller_responded, adjudicated, appealed, final
+  assignedAgent         Merchant? @relation(fields: [assignedAgentId], references: [id])
+  assignedAgentId       String?
+  
+  // Resolution
+  resolution            String?  // refund_buyer, release_seller, partial_split
+  resolutionNotes       String?
+  refundAmountCents     BigInt?
+  appealCount           Int      @default(0)
+  
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+  
+  @@index([status])
+  @@index([createdAt])
+}
+
+// ============================================================================
+// INSURANCE CLAIMS
+// ============================================================================
+
+model InsuranceClaim {
+  id                    String   @id @default(uuid())
+  
+  escrow                Escrow   @relation(fields: [escrowId], references: [id], onDelete: Cascade)
+  escrowId              String
+  
+  type                  String   // buyer_protection, seller_protection
+  status                String   @default("pending") // pending, approved, rejected, paid
+  claimAmountCents      BigInt
+  evidence              Json?
+  
+  resolvedAt            DateTime?
+  createdAt             DateTime @default(now())
+  
+  @@index([status])
+}
+
+// ============================================================================
+// TRANSACTIONS (Payment Log)
+// ============================================================================
+
+model Transaction {
+  id                    String   @id @default(uuid())
+  
+  escrow                Escrow?  @relation(fields: [escrowId], references: [id], onDelete: SetNull)
+  escrowId              String?
+  
+  merchant              Merchant? @relation(fields: [merchantId], references: [id], onDelete: SetNull)
+  merchantId            String?
+  
+  type                  String   // fee_collected, insurance_premium, insurance_payout, dispute_payout
+  amountCents           BigInt
+  currency              String   @db.VarChar(3)
+  status                String   @default("pending") // pending, completed, failed
+  
+  createdAt             DateTime @default(now())
+  
+  @@index([merchantId])
+  @@index([escrowId])
+}
+
+// ============================================================================
+// API KEYS (Partner Integrations)
+// ============================================================================
+
+model ApiKey {
+  id                    String   @id @default(uuid())
+  
+  merchant              Merchant @relation(fields: [merchantId], references: [id], onDelete: Cascade)
+  merchantId            String
+  
+  keyName               String
+  keyHash               String   @unique // bcrypt hash of actual key
+  isActive              Boolean  @default(true)
+  lastUsedAt            DateTime?
+  rateLimit             Int      @default(100) // requests per minute
+  
+  createdAt             DateTime @default(now())
+  expiresAt             DateTime?
+  
+  @@index([merchantId])
+}
+
+// ============================================================================
+// WEBHOOKS (Partner Callbacks)
+// ============================================================================
+
+model Webhook {
+  id                    String   @id @default(uuid())
+  
+  merchant              Merchant @relation(fields: [merchantId], references: [id], onDelete: Cascade)
+  merchantId            String
+  
+  eventType             String   // escrow.created, escrow.funded, escrow.released, dispute.filed
+  webhookUrl            String
+  isActive              Boolean  @default(true)
+  retryCount            Int      @default(0)
+  lastTriggeredAt       DateTime?
+  
+  createdAt             DateTime @default(now())
+  
+  @@index([merchantId])
+  @@index([eventType])
+}
+
+// ============================================================================
+// AUDIT LOG (Compliance)
+// ============================================================================
+
+model AuditLog {
+  id                    String   @id @default(uuid())
+  
+  merchant              Merchant? @relation(fields: [merchantId], references: [id], onDelete: SetNull)
+  merchantId            String?
+  
+  action                String   // login, create_escrow, verify_otp, release, file_dispute, etc.
+  resourceType          String   // escrow, dispute, merchant, api_key, etc.
+  resourceId            String
+  details               Json?
+  ipAddress             String?
+  
+  createdAt             DateTime @default(now())
+  
+  @@index([merchantId])
+  @@index([resourceType])
+  @@index([createdAt])
+}
+
+// ============================================================================
+// ANALYTICS (Pre-aggregated for Dashboards)
+// ============================================================================
+
+model DailyAnalytic {
+  id                    String   @id @default(uuid())
+  
+  merchant              Merchant @relation(fields: [merchantId], references: [id], onDelete: Cascade)
+  merchantId            String
+  
+  date                  DateTime @db.Date
+  transactionCount      Int      @default(0)
+  transactionVolumeCents BigInt   @default(0)
+  feesCollectedCents    BigInt   @default(0)
+  disputesFiled         Int      @default(0)
+  disputesResolved      Int      @default(0)
+  fraudAttempts         Int      @default(0)
+  
+  createdAt             DateTime @default(now())
+  
+  @@unique([merchantId, date])
+  @@index([merchantId])
+  @@index([date])
+}
